@@ -1,91 +1,95 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 
 type Metadata = {
-	title: string;
-	publishedAt: string;
-	summary: string;
-	image?: string;
-	issueTerm?: string;
+  title: string;
+  publishedAt: string;
+  summary: string;
+  image?: string;
+  issueTerm?: string;
 };
 
 function parseFrontmatter(fileContent: string) {
-	let frontmatterRegex = /---\s*([\s\S]*?)\s*---/;
-	let match = frontmatterRegex.exec(fileContent);
-	let frontMatterBlock = match![1];
-	let content = fileContent.replace(frontmatterRegex, "").trim();
-	let frontMatterLines = frontMatterBlock.trim().split("\n");
-	let metadata: Partial<Metadata> = {};
+  const frontmatterRegex = /---\s*([\s\S]*?)\s*---/;
+  const match = frontmatterRegex.exec(fileContent);
+  if (!match) {
+    throw new Error("Frontmatter não encontrado no arquivo MDX.");
+  }
+  const frontMatterBlock = match[1];
+  const content = fileContent.replace(frontmatterRegex, "");
+  const frontMatterLines = frontMatterBlock.trim().split("\n");
+  const metadata: Partial<Metadata> = {};
 
-	frontMatterLines.forEach((line) => {
-		let [key, ...valueArr] = line.split(": ");
-		let value = valueArr.join(": ").trim();
-		value = value.replace(/^['"](.*)['"]$/, "$1"); // Remove quotes
-		metadata[key.trim() as keyof Metadata] = value;
-	});
+  frontMatterLines.forEach((line) => {
+    const [key, ...valueArr] = line.split(": ");
+    const value = valueArr.join(": ").trim();
+    const valueWithoutQuotes = value.replace(/^['"](.*)['"]$/, "$1");
+    metadata[key.trim() as keyof Metadata] = valueWithoutQuotes;
+  });
 
-	return { metadata: metadata as Metadata, content };
+  return { metadata: metadata as Metadata, content: content.trim() };
 }
 
-function getMDXFiles(dir) {
-	return fs.readdirSync(dir).filter((file) => path.extname(file) === ".mdx");
+function getMDXFiles(dir: string) {
+  return fs.readdirSync(dir).filter((file) => path.extname(file) === ".mdx");
 }
 
-function readMDXFile(filePath) {
-	let rawContent = fs.readFileSync(filePath, "utf-8");
-	return parseFrontmatter(rawContent);
+function readMDXFile(filePath: string) {
+  const rawContent = fs.readFileSync(filePath, "utf-8");
+  return parseFrontmatter(rawContent);
 }
 
-function getMDXData(dir) {
-	let mdxFiles = getMDXFiles(dir);
-	return mdxFiles.map((file) => {
-		let { metadata, content } = readMDXFile(path.join(dir, file));
-		let slug = path.basename(file, path.extname(file));
+function getMDXData(dir: string) {
+  const mdxFiles = getMDXFiles(dir);
+  return mdxFiles.map((file) => {
+    const { metadata, content } = readMDXFile(path.join(dir, file));
+    const slug = path.basename(file, path.extname(file));
 
-		return {
-			metadata,
-			slug,
-			content,
-		};
-	});
+    return {
+      metadata,
+      slug,
+      content,
+    };
+  });
 }
 
 export function getBlogPosts() {
-	return getMDXData(path.join(process.cwd(), "app", "blog", "posts"));
+  return getMDXData(path.join(process.cwd(), "app", "blog", "posts"));
 }
 
 export function formatDate(date: string, includeRelative = false) {
-	let currentDate = new Date();
-	if (!date.includes("T")) {
-		date = `${date}T00:00:00`;
-	}
-	let targetDate = new Date(date);
+  const normalizeDate = (date: string) =>
+    date.includes("T") ? date : `${date}T00:00:00`;
 
-	let yearsAgo = currentDate.getFullYear() - targetDate.getFullYear();
-	let monthsAgo = currentDate.getMonth() - targetDate.getMonth();
-	let daysAgo = currentDate.getDate() - targetDate.getDate();
+  const getTimeDifference = (current: Date, target: Date) => ({
+    years: current.getFullYear() - target.getFullYear(),
+    months: current.getMonth() - target.getMonth(),
+    days: current.getDate() - target.getDate(),
+  });
 
-	let formattedDate = "";
+  const getRelativeDate = ({
+    years,
+    months,
+    days,
+  }: ReturnType<typeof getTimeDifference>) => {
+    if (years > 0) return `${years}y ago`;
+    if (months > 0) return `${months}mo ago`;
+    if (days > 0) return `${days}d ago`;
+    return "Today";
+  };
 
-	if (yearsAgo > 0) {
-		formattedDate = `${yearsAgo}y ago`;
-	} else if (monthsAgo > 0) {
-		formattedDate = `${monthsAgo}mo ago`;
-	} else if (daysAgo > 0) {
-		formattedDate = `${daysAgo}d ago`;
-	} else {
-		formattedDate = "Today";
-	}
+  const getFullDate = (date: Date) =>
+    date.toLocaleString("en-us", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
 
-	let fullDate = targetDate.toLocaleString("en-us", {
-		month: "long",
-		day: "numeric",
-		year: "numeric",
-	});
+  const targetDate = new Date(normalizeDate(date));
+  const currentDate = new Date();
+  const timeDiff = getTimeDifference(currentDate, targetDate);
+  const fullDate = getFullDate(targetDate);
+  const relativeDate = getRelativeDate(timeDiff);
 
-	if (!includeRelative) {
-		return fullDate;
-	}
-
-	return `${fullDate} (${formattedDate})`;
+  return includeRelative ? `${fullDate} (${relativeDate})` : fullDate;
 }
