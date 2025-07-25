@@ -1,0 +1,36 @@
+---
+title: "Como usar o React useState"
+publishedAt: "2024-05-01"
+summary: "Aprenda a usar o hook useState no React para gerenciar estados em componentes funcionais."
+---
+
+# Como usar o React useState
+
+O hook `useState` é uma das formas mais simples de adicionar estado a componentes funcionais no React. Veja um exemplo básico de uso:
+
+```jsx
+import React, { useState } from "react";
+
+function Contador() {
+  const [contador, setContador] = useState(0);
+
+  return (
+    <div>
+      <p>Você clicou {contador} vezes</p>
+      <button onClick={() => setContador(contador + 1)}>Clique aqui</button>
+    </div>
+  );
+}
+```
+
+A cada clique no botão, o valor do contador é incrementado.
+
+## Exemplo visual
+
+Veja uma imagem ilustrativa do React:
+
+<Image src="/avatar.jpeg" alt="Logo do React" width={200} height={200} />
+
+## Conclusão
+
+O `useState` é essencial para criar componentes interativos. Experimente modificar o exemplo acima para entender melhor seu funcionamento!

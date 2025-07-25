@@ -1,31 +1,32 @@
 {
-	"private": true,
-	"scripts": {
-		"dev": "next dev",
-		"build": "next build",
-		"start": "next start",
-		"lint": "biome lint",
-		"lint:fix": "biome lint --fix",
-		"format": "biome format --write"
-	},
-	"dependencies": {
-		"@tailwindcss/postcss": "4.1.7",
-		"@types/node": "22.15.19",
-		"@types/react": "19.1.4",
-		"@types/react-dom": "19.1.5",
-		"@vercel/analytics": "^1.5.0",
-		"@vercel/speed-insights": "^1.2.0",
-		"geist": "1.4.2",
-		"next": "canary",
-		"next-mdx-remote": "^5.0.0",
-		"postcss": "^8.5.3",
-		"react": "19.1.0",
-		"react-dom": "19.1.0",
-		"sugar-high": "^0.9.3",
-		"tailwindcss": "4.1.7",
-		"typescript": "5.8.3"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "2.0.0"
-	}
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "biome lint",
+    "lint:fix": "biome lint --fix",
+    "format": "biome format --write"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "4.1.7",
+    "@types/node": "22.15.19",
+    "@types/react": "19.1.4",
+    "@types/react-dom": "19.1.5",
+    "@vercel/analytics": "^1.5.0",
+    "@vercel/speed-insights": "^1.2.0",
+    "geist": "1.4.2",
+    "html-react-parser": "^5.2.5",
+    "next": "canary",
+    "next-mdx-remote": "^5.0.0",
+    "postcss": "^8.5.3",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "sugar-high": "^0.9.3",
+    "tailwindcss": "4.1.7",
+    "typescript": "5.8.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.0.0"
+  }
 }
